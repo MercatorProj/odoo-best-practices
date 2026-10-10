@@ -36,3 +36,7 @@ The skill activates automatically when Codex detects an Odoo development task (m
 
 - Codex CLI or any agent that supports the Codex skill format
 - Odoo 18, 19, or 20 development context (defaults to Odoo 20 conventions)
+
+## License
+
+[MIT](LICENSE)
