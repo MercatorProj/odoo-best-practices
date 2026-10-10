@@ -1,0 +1,3 @@
+interface:
+  display_name: "Odoo Best Practices"
+  short_description: "Odoo 18-20 module architecture, ORM, views, security, testing, and performance best practices"
