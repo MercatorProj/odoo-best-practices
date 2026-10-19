@@ -13,6 +13,10 @@ A [Codex skill](https://platform.openai.com/docs/guides/codex) that applies Odoo
 | `testing-performance.md` | `TransactionCase`, `HttpCase`, tours, batch operations, `_read_group`, profiling |
 | `dev-environment.md` | Source install, `odoo-bin` options, `--dev` features, config file, scaffolding, running the server |
 | `official-docs.md` | Curated official documentation index (setup, tutorials, reference, howtos, guidelines) |
+| `external-api.md` | JSON-RPC / XML-RPC / HTTP routes, auth, rate limits, webhooks |
+| `frontend-architecture.md` | Assets, bundles, services, registries, systray, client actions |
+| `testing.md` | Test rig design, real-browser verification (Playwright), regression discipline |
+| `project-roadmap.md` | Phase-by-phase delivery route for real projects: baseline, modeling, state machines, interaction, gates, release |
 
 ## Install
 

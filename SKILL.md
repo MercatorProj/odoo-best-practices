@@ -2,7 +2,7 @@
 name: odoo-best-practices
 description: Apply Odoo 18-20 best practices for module architecture, ORM patterns, XML views, OWL components, security, testing, and performance, plus dev environment setup and an official documentation index. Use when developing, reviewing, or debugging Odoo custom modules or setting up an Odoo development environment.
 metadata:
-  version: 1.59.0
+  version: 1.60.0
   license: MIT
   topics: [odoo, erp, best-practices, python]
 ---
