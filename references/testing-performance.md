@@ -1,5 +1,9 @@
 # Testing and Performance
 
+## Runbot (Odoo CI)
+
+- Odoo's CI server: every commit, branch and PR is tested against regressions; passing runs are deployed with demo data at runbot.odoo.com — useful for exploring any app against demo data.
+
 ## Test Structure
 
 ```python
@@ -30,10 +34,20 @@ class TestMyModel(TransactionCase):
 ```
 
 - `TransactionCase`: each test runs in a rolled-back transaction (most common).
-- `SavepointCase`: all tests share a single transaction with savepoints (faster for setup-heavy tests).
+- Subclasses of `odoo.tests.BaseCase` (typically via `TransactionCase`/`HttpCase`) are automatically tagged `standard` and `at_install`; adjust with `@tagged(...)` (e.g. `@tagged('post_install', '-at_install')`).
 - `HttpCase`: for testing controllers and tour-based frontend tests.
 - Use `@tagged('post_install', '-at_install')` for tests that need the module fully installed.
 - Test files go in `tests/` with an `__init__.py` that imports them.
+
+## Test Authoring Rules
+
+- Layout: a `tests/` folder at the module root; files named `test_*.py`, imported **only** in `tests/__init__.py` (never in the module `__init__.py`).
+- Default tags: subclasses of `odoo.tests.BaseCase` (e.g. `TransactionCase`, `HttpCase`) are tagged `standard` + `at_install` (testing reference). Opt into `@tagged('post_install', '-at_install')` when the behaviour may be altered by later module installs. (Note: the 20.0 unit-tests tutorial's comment claims `post_install` is the default — the testing reference says otherwise; trust the reference.)
+- `setUpClass` builds shared data once (faster than `setUp` per test); split suites per scope and share a `Common` base class like `account/tests/common.py`.
+- Rules: stay independent of demo data; the framework rolls back after each test so **never call `cr.commit()`** (in tests or business code); a bug-fix test must fail before the fix and pass after; don't test the ORM — test business flows; no manual flushing.
+- `onchange` fires only in form views: emulate one with `odoo.tests.Form`.
+- Assertions: `self.assertRecordValues(records, [{...}, ...])` for field-by-field checks; `with self.assertRaises(UserError):` for guards.
+- CLI: `--test-tags` implies `--test-enable`; spec format `[-][tag][/module][:class][.method]`; run a single file with `--test-file=path`.
 
 ## Frontend Tour Tests
 
@@ -103,6 +117,16 @@ for partner in partners:
 for rec in recs:
     print(rec.partner_id.name)  # May trigger separate queries
 ```
+
+### 20.0 Performance Additions
+
+- Per-record count computes: replace `search_count` in loops with one grouped query — `counts = dict(other_model._read_group([('related_id', 'in', self.ids)], ['related_id'], ['__count']))`, then `record.count = counts.get(record, 0)`.
+- Batch `create` too: build a list of dicts and call `model.create(values_list)` once.
+- `with_prefetch()` controls or disables batch prefetching when browsing ids one at a time is unavoidable.
+- Complexity: index lookups with a dict instead of nested loops; membership tests on a `set` (a list makes `in` quadratic); recordset math (`self - invalid_ids`) can replace id loops.
+- Speedscope views: `sql (no gap)` for pure SQL optimisation, `sql (density)` to spot zones of many small queries worth batching.
+- Profiler pitfalls: blocking C calls delay GIL release and show as long frames; long sessions may need `--limit-memory-hard`.
+- Index tradeoff: every index slows `INSERT`/`UPDATE`/`DELETE` — do not index everything.
 
 ## Running Tests
 
